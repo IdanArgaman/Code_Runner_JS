@@ -3,7 +3,7 @@ import App from './App.vue'
 import VueHighlightJS from 'vue-highlightjs'
 
 import javascript from 'highlight.js/lib/languages/javascript';
-import 'highlight.js/styles/default.css';
+import 'highlight.js/styles/atom-one-dark.css';
 
 Vue.use(VueHighlightJS, {
 	// Register only languages that you want
