@@ -423,5 +423,107 @@ export default [
 
         console.log(typeof String('Hello world')); // string
         console.log(typeof new String('Hello world')); // object
+
+        /*  From: 
+            https://stackoverflow.com/questions/17256182/what-is-the-difference-between-string-primitives-and-string-objects-in-javascrip
+
+            JavaScript has two main type categories, primivites and objects.
+
+            the behaviour you are trying to name is called auto-boxing. So what actually happens is that a primitive 
+            is converted to its wrapper type when a method of the wrapper type is invoked. Put simple:
+        */
+
+        var s = 'test';
+
+        /*
+            's' is a primitive data type. It has NO methods, it is nothing more than a pointer to a raw data memory reference,
+             which explains the much faster random access speed.
+
+            So what happens when you do s.charAt(i) for instance?
+        */
+
+        s.charAt(2);
+
+        /*
+             Since s is not an instance of String, JavaScript will auto-box s, which has typeof string to its 
+             wrapper type, String, with typeof object or more precisely. The auto-boxing behaviour casts s back and
+             forth to its wrapper type as needed, but the standard operations are incredibly fast since you are dealing
+             with a simpler data type.
+         */
+    },
+
+    () => {
+
+        // Any object of which the value is not undefined or null, including a Boolean object 
+        // whose value is false, evaluates to true!
+
+        var x = new Boolean(false);
+        if (x) {
+            // this code is executed, because 'x' object which is true
+            console.log('x - Enters!');
+        }
+
+        var y = false;
+        if (y) {
+            // this code is not executed, ecause 'y' is a boolean primitive with "false" as value.
+            console.log('y - Enters!');
+        }
+    },
+
+    () => {
+        // Using 
+        var containers = [2, 0, false, "", '12', true];
+
+        // All of these create primitive values!
+        console.log(containers.filter(Boolean)); // 0, false, "" -> fail!
+        console.log(containers.filter(Number)); // Number('') === 0, Number('12') is NaN
+        console.log(containers.filter(String)); // All pass!
+
+        // This one creates object!
+        console.log(containers.filter(Object)); // All pass because we create objects which are truthy no matter the value they wrap
+    },
+
+    () => {
+        /* 
+            The slice() method returns a shallow copy of a portion of an array into a new array object selected 
+            from start to end (END NOT INCLUDED) where start and end represent the index of items in that array. 
+            THE ORIGINAL ARRAY IS NOT MODIFIED - NO MUTATION!
+        */
+
+        console.log('---- SLICE ----');
+        var list = ['foo', 'bar', 'john', 'ritz'];
+        console.log(list.slice(1)); // Start from index 1 (the second item) to the end	
+        console.log(list.slice(1, 3)); // Start from index 1 to index 3 not including!	
+        console.log(list.slice()); // Actually, create new array! Shallow copy!
+        console.log(list.slice(2, 2)); // Start from index 2 to index 2 not including - Empty array!
+        console.log(list);
+
+        /*  
+            The splice() method CHANGES the contents of an array by removing or replacing existing elements 
+            and/or adding new elements - MUTATION OCCURS!
+
+            3 parameters are provided 
+            ((MUST) start from this index - If greater than the length of the array, start will be set to the length of the array.
+                                           In this case, no element will be deleted but the method will behave as an adding function
+            (OPTIONAL) delete this number of elements - If omitted then all the elements from start to the end of the array will be deleted.
+            (OPTIONAL) add these element to the start index)
+
+            The return value is the items removed!
+        */
+        console.log('---- SPLICE ----');
+        var list = ['foo','bar','john'];
+	    console.log(list.splice(1));	    // Start from 1 index, delete all up to the end - two elemented get deleted!
+	    console.log(list.splice(1,2));      // Start from 1 index which is greater than the array so no deletion!	
+	    console.log(list);	
+        
+        console.log('---- PLAY ----');
+        var x = [1,2,3,4,5,6,7,8,9];
+        x.splice(2,2,'A','B');  // Start from the 2 index (item equal to number 3), remove 2 elements, add elements 'A' & 'B'
+        console.log(x);
+
+        x = [1,2,3,4,5,6,7,8,9];    
+        x.splice(10,null,'A','B');  // Start from the 10 index - excceds the array limit, so no deletion, then add elements 'A' & 'B'
+        console.log(x);
+
     }
 ]
