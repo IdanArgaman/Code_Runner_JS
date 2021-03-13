@@ -70,14 +70,16 @@ export default [
 
     () => {
 
-        foo();
-        bar();
+        bar(); // OK
+        foo(); // Not OK
 
-        // foo is defined at run-time and is called a "function expression"
-        var foo = function () {};
 
-        // bar is defined at parse time and is called a function statement
-        function bar() {}
+        var foo = function () {
+            console.log('foo');
+        } // foo is defined at run-time and is called a "function expression"
+        function bar() {
+            console.log('bar');
+        } // bar is defined at parse time and is called a "function statement"
     },
 
     /* typeof and instanceof
@@ -267,6 +269,8 @@ export default [
     },
 
     () => {
+        // ⚠️⚠️⚠️ This is a very important example to learn more about arrow functions
+
         // this - from MDN - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this#as_a_dom_event_handler
 
         // Create obj with a method bar that returns a function that
@@ -282,26 +286,26 @@ export default [
             }
         };
 
-        // Call bar as a method of obj, setting its this to obj
+        // Call bar as a method of obj (calling bar THROUGH obj), setting its this to obj
         // Assign a reference to the returned function to fn
         var fn = obj.bar();
 
-        // Call fn without setting this, would normally default
-        // to the global object or undefined in strict mode
+        // Calling fn, the "this" inside it was captured to be "obj"
         console.log(fn() === obj); // true
 
         // But caution if you reference the method of obj without calling it
         var fn2 = obj.bar;
-        // Calling the arrow function's this from inside the bar method()
-        // will now return window, because it follows the this from fn2.
+
+        // When executing fn2, it will execute bar through the "window" object, so the arrow function's "this"  
+        // points to the window object.
 
         // We know that for arrow functions "this" is determined during parse time
         // so when defining an arrow function inside another wrapper function, that
-        // wrapper function's "this" will become the arrow function's this.
-        // In the following code line, calling fn2() once defines the arrow function,
-        // at this time fn2's "this" is the window object, so this window object will
-        // be the "this" inside the arrow function being called immediately
+        // wrapper function's "this" will become the arrow function's this (Capturing).
 
+        // In the following code line, calling fn2() directly defines the arrow function,
+        // but at this time fn2's "this" is the window object, so this window object will
+        // be the "this" inside the arrow function being called immediately
         console.log(fn2()() == window); // true
     },
 
@@ -511,19 +515,162 @@ export default [
             The return value is the items removed!
         */
         console.log('---- SPLICE ----');
-        var list = ['foo','bar','john'];
-	    console.log(list.splice(1));	    // Start from 1 index, delete all up to the end - two elemented get deleted!
-	    console.log(list.splice(1,2));      // Start from 1 index which is greater than the array so no deletion!	
-	    console.log(list);	
-        
+        var list = ['foo', 'bar', 'john'];
+        console.log(list.splice(1)); // Start from 1 index, delete all up to the end - two elemented get deleted!
+        console.log(list.splice(1, 2)); // Start from 1 index which is greater than the array so no deletion!	
+        console.log(list);
+
         console.log('---- PLAY ----');
-        var x = [1,2,3,4,5,6,7,8,9];
-        x.splice(2,2,'A','B');  // Start from the 2 index (item equal to number 3), remove 2 elements, add elements 'A' & 'B'
+        var x = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        x.splice(2, 2, 'A', 'B'); // Start from the 2 index (item equal to number 3), remove 2 elements, add elements 'A' & 'B'
         console.log(x);
 
-        x = [1,2,3,4,5,6,7,8,9];    
-        x.splice(10,null,'A','B');  // Start from the 10 index - excceds the array limit, so no deletion, then add elements 'A' & 'B'
+        x = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        x.splice(10, null, 'A', 'B'); // Start from the 10 index - excceds the array limit, so no deletion, then add elements 'A' & 'B'
         console.log(x);
+    },
 
-    }
+    () => {
+        /* The default sort order is ascending, built upon converting the 
+            elements into strings, then comparing their sequences of UTF-16 code units values.
+            
+            So we can conclude that the default sort order is as list of strings, like we order file names
+        */
+
+        var arrayNumb = [2, 8, 15, 16, 23, 42];
+        arrayNumb.sort();
+        console.log(arrayNumb);
+    },
+
+    () => {
+        window.message = 'xxx';
+
+        var obj1 = {
+            message: "Hello",
+            innerMessage: !(function () {
+                console.log('Obj: ' + this.message); // An IIFE, the function invoker is the windows object
+                // this object doesn't contain a "message" prop so this.message is "xxx"
+            })()
+        };
+
+        // We should note that the IIFE function runs on parsing, before we even access the innerMessage
+        // property. Thus the function runs before the code line below. 
+        console.log('Obj: ' + obj1.innerMessage);
+
+        var obj2 = {
+            message: 'Hello',
+            innerMessage: function () {
+                // It is important to remember that the IIFE is executed during parsing,
+                // So we don't need to execute innerMessage in order to run it.
+                // In this example the result of the IIFE (resolved during parse time) will be returned later,
+                // when we actually call "innerMessage", but the result gets determined during PARSE!!! 
+                return !!(function () {
+                    console.log('Obj2 IIFE: ' + this.message); // Same as here, the invoker is window, so this.message is "xxx"
+                    return true;
+                }());
+            }
+        };
+
+        // Even though we invoked the innerMessage function thourgh obj2, the invoker of the IIFE defined there 
+        // is the window object.
+        console.log('Obj2: ' + obj2.innerMessage());
+
+        var obj3 = {
+            message: 'Hello',
+            innerMessage: function () {
+                var fn = function () {
+                    console.log('Obj3: ' + this.message1);
+                };
+
+                return !!fn(); // The invoker is the window, again!
+            }
+        };
+
+        // Even though we invoked the innerMessage function thourgh obj3, the invoker of the IIFE defined there 
+        // is the window object.
+        console.log('Obj3: ' + obj3.innerMessage());
+    },
+
+    () => {
+        function myFunc() {
+            console.log(' ' + this.message);
+        }
+
+        // Even though we create a "message" prop inside func, the invoker is the window
+        // that doesn't contain a "message" prop
+        myFunc.message = "Hi John";
+
+        console.log(' ' + myFunc());
+    },
+
+    () => {
+        function myFunc(param1, param2) {
+            console.log(myFunc.length); // The length of a function is the number argument in its DEFINITION!
+        }
+        console.log(myFunc());
+        console.log(myFunc("a", "b"));
+        console.log(myFunc("a", "b", "c", "d"));
+
+        function myFunc2() {
+            console.log(arguments.length); // The function's arguements are the ACTUAL arguments passed to it during invocation!
+        }
+        console.log(myFunc2());
+        console.log(myFunc2("a", "b"));
+        console.log(myFunc2("a", "b", "c", "d"));
+    },
+
+    () => {
+        function Person(name, age){
+            this.name = name || "John";
+            this.age = age || 24;
+            this.displayName = function(){
+                console.log(this.name);
+            }
+        }
+
+        /* A Function object's READ-ONLY name property indicates the function's name as specified when it was created,
+           or it may be either anonymous or '' (an empty string) for functions created anonymously. */
+        
+        Person.name = "John";   // ⚠️ Overriding the name doesn't work!
+        Person.displayName = function(){
+            console.log(this.name);
+        }
+        
+        var person1 = new Person('John');
+        person1.displayName();
+        Person.displayName();
+    },
+
+    () => {
+        // The grouping operator
+
+        var x = 3;
+        function getNumber(){
+            return (x = 2 * x, x = 4 + x, 10 - x);   // Comman separating expressions in group, the last expression is the result
+        }
+        
+        var numb = getNumber();
+        console.log(numb);
+    },
+
+    () => {
+        function getName1(){
+            console.log(this.name);
+        }
+        
+        Object.prototype.getName2 = () =>{
+            console.log(this.name)      // The prototype uses an arrow function which is wrong,
+                                        // because now 'this' will always point to "window",
+                                        // which is the this during parse!
+        }
+        
+        let personObj = {
+            name:"Tony",
+            print:getName1          // "print" points to "getName1", it doesn't matter where the function is defined
+                                    // what matters is the object that calls it!
+        }
+        
+        personObj.print();          // 'Tony'
+        personObj.getName2();       // Undefined
+    },
 ]
