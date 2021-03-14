@@ -1,37 +1,37 @@
 <template>
   <div class="code-container">
     <div
-      v-for="(code, idx) in codes"
+      v-for="(codeItem, idx) in codeItems"
       :key="idx"
       class="code-item"
       ref="codeItems"
     >
       <div class="code-item-body">
         <pre
-          v-highlightjs="code.toString()"
+          v-highlightjs="codeItem.code.toString()"
         ><code class="javascript"></code></pre>
         <div class="output" v-html="results[idx]"></div>
       </div>
       <div>
-        <button @click="run(code, idx)">Run</button>
+        <button @click="run(codeItem, idx)">Run</button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import codes from "../assets/code.js";
+import codeItems from "../assets/code.js";
 
 export default {
   name: "CodeRunner",
   data: function() {
     return {
-      codes: codes,
+      codeItems: codeItems,
       results: {},
     };
   },
   methods: {
-    run(code, idx) {
+    run(codeItem, idx) {
       const origLog = console.log;
       const component = this;
 
@@ -43,7 +43,7 @@ export default {
       };
 
       try {
-        new Function(`(${code.toString()})()`)();
+        new Function(`(${codeItem.code.toString()})()`)();
       } catch (e) {
         console.log(e);
       }
