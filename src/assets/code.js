@@ -6,6 +6,7 @@ const CodeTypesEnum = {
     THIS: "this",
     OBJECTS: "Objects",
     FUNDAMENTALS: "Fundamentals",
+    INTERNAL: "INTERNAL",
     HOISTING: "Hoisting",
     IIFE: "IIFE",
     NEW_FEATURES: "New Features"
@@ -128,8 +129,8 @@ export default [{
         "code": () => {
             function User(name) {
                 this.name = name || "JsGeeks";
-            } 
-            
+            }
+
             // First, the engine runs the right most expression which is - new User("xyz")["location"] = "USA"
             // The result of this assignment is the right most value "USA"
             // Thee it runs - var person = "USA"
@@ -217,6 +218,31 @@ export default [{
         "title": "",
         "description": "",
         "code": () => {
+            /*
+            Six Data Types that are primitives, checked by typeof operator:
+
+                undefined : typeof instance === "undefined"
+                Boolean : typeof instance === "boolean"
+                Number : typeof instance === "number"
+                String : typeof instance === "string"
+                BigInt : typeof instance === "bigint"
+                Symbol : typeof instance === "symbol"
+
+                Structural Types:
+
+                Object : typeof instance === "object". Special non-data but Structural type for any constructed object instance
+                also used as data structures: new Object, new Array, new Map, new Set, new WeakMap, new WeakSet, new Date and
+                almost everything made with new keyword.
+
+                Function : a non-data structure, though it also answers for typeof operator: typeof instance === "function".
+                This is merely a special shorthand for Functions, though every Function constructor is derived from Object 
+                constructor.
+
+                Structural Root Primitive:
+                
+                null : typeof instance === "object".
+            */
+
             // typeof
             console.log(typeof {}); // object
 
@@ -349,10 +375,10 @@ export default [{
             // returned function.
             var obj = {
                 bar: function bar() {
-                    return () =>  this;
+                    return () => this;
                 }
-            }; 
-            
+            };
+
             // Call bar as a method of obj (calling bar THROUGH obj), setting its this to obj
             // Assign a reference to the returned function to fn
 
@@ -827,9 +853,9 @@ export default [{
             } // Using arrow function, we can freely break the line
 
 
-            var fn = () => 
-                 "fn";
-        
+            var fn = () =>
+                "fn";
+
             console.log(test());
             console.log(fn());
         }
@@ -847,6 +873,160 @@ export default [{
 
             var h = new Human();
             h.printGender();
+        }
+    },
+    {
+        "categoryId": CodeTypesEnum.INTERNAL,
+        "title": "Functions",
+        "description": "",
+        "code": () => {
+
+            function Parent() {
+                this.name = "John"
+            }
+
+            Parent.prototype.test = function () {
+                console.log('test')
+            }
+
+            // Parent.prototype is Object used as the blueprint for instances of this constructor function!
+            // This blueprint is the one refered by the __proto__ property of new objects created by this contsturctor function
+            console.log(Parent.prototype);
+
+            // The Object.create() method creates a new object, using an existing object as the prototype of the newly created object.
+
+            // Parent prototype => {constructor: Parent, test: f}
+            // SO:
+            // t.__proto__ => {test: ƒ, constructor: Parent}
+            var t = Object.create(Parent.prototype);
+
+            function CreatedConstructor() {
+                Parent.call(this)
+            }
+
+            // We should note that we assign the "CreatedConstructor" prototype property to a new object which is has 
+            // its __proto__ property pointing to Parent prototype. So that new object's constructor property is the 
+            // Parent function 
+
+            CreatedConstructor.prototype = t // This is the line causes error at s3 creation! If we comment it, s3 won't cause an error!
+
+            // Adding a new method to 't'
+            CreatedConstructor.prototype.create = function create() {
+                return new this.constructor()
+            }
+
+            // s1.__proto__ points to CreatedConstructor.prototype (t) which has a 'create' method and
+            // a __proto__ that points to Parent.prototype which equals {test: ƒ, constructor: Parent}
+            var s1 = new CreatedConstructor()
+
+            // calling create calls this.constrcutor which is the Parent function which has no 'create' method!!!
+            var s2 = s1.create();
+
+            // Error: Parent doesn't have a 'create' method!
+            // var s3 = s2.create();
+        }
+    },
+    {
+        "categoryId": CodeTypesEnum.INTERNAL,
+        "title": "Prototypes",
+        "description": "",
+        "code": () => {
+            // Every JavaScript function is actually a Function object. This can be seen with the code , which returns true.
+            console.log((function () {}).constructor === Function);
+
+            // Functions created with the Function constructor do not create closures to their creation contexts; 
+            // they always are created in the global scope. When running them, they will only be able to access their 
+            // own local variables and global ones, not the ones from the scope in which the Function constructor was created. 
+            // This is different from using eval with code for a function expression.
+
+            var x = 10; // Global scope
+
+            function createFunction1() {
+                var x = 20;
+                return new Function('return x;'); // this |x| refers global |x|
+            }
+
+            function createFunction2() {
+                var x = 20;
+
+                function f() {
+                    return x; // this |x| refers local |x| above
+                }
+                return f;
+            }
+
+            var f1 = createFunction1();
+            console.log(f1()); // 10
+            var f2 = createFunction2();
+            console.log(f2()); // 20
+        }
+    },
+    {
+        "categoryId": CodeTypesEnum.INTERNAL,
+        "title": "Functions",
+        "description": "",
+        "code": () => {
+            /*
+            Note: It's important to understand that there is a distinction between an object's prototype 
+            (available via Object.getPrototypeOf(obj), or via the deprecated __proto__ property) and the prototype
+            property on constructor functions.
+
+            The constructor function Foobar() has its own prototype, which can be found by calling Object.getPrototypeOf(Foobar).
+            However this differs from its prototype property, Foobar.prototype, which is the blueprint for instances of this
+            constructor function.
+
+            If we were to create a new instance — let fooInstance = new Foobar() — fooInstance would take its prototype
+            from its constructor function's prototype property. Thus Object.getPrototypeOf(fooInstance) === Foobar.prototype.
+
+            */
+
+            function Foobar() {}
+            Object.getPrototypeOf(Foobar) // Native code
+            console.log(Foobar.prototype) // {constructor: ƒ}
+        }
+    },
+    {
+        "categoryId": CodeTypesEnum.OBJECTS,
+        "title": "Constructor",
+        "description": "",
+        "code": () => {
+            function ParentWithStatic() {}
+
+            ParentWithStatic.startPosition = {
+                x: 0,
+                y: 0
+            } // Static member property
+            ParentWithStatic.getStartPosition = function getStartPosition() {
+                return this.startPosition
+            }
+
+            function Child(x, y) {
+                this.position = {
+                    x: x,
+                    y: y
+                }
+            }
+
+            // Without this line the code fails!
+            // Child = Object.assign(Child, ParentWithStatic) // copies over the static members from ParentWithStatic to Child
+
+            Child.prototype = Object.create(ParentWithStatic.prototype)
+            Child.prototype.constructor = Child
+
+            Child.prototype.getOffsetByInitialPosition = function getOffsetByInitialPosition() {
+                let position = this.position
+
+                // this.constructor === Child!
+                // the Child doesn't have a static getStartPosition() function if we didn't explicitly defined it!
+                let startPosition = this.constructor.getStartPosition() // error undefined is not a function, since the constructor is Child
+
+                return {
+                    offsetX: startPosition.x - position.x,
+                    offsetY: startPosition.y - position.y
+                }
+            };
+
+            new Child().getOffsetByInitialPosition();
         }
     }
 ]
