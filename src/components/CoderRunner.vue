@@ -13,7 +13,8 @@
         <div class="output" v-html="results[idx]"></div>
       </div>
       <div>
-        <button @click="run(codeItem, idx)">Run</button>
+        <button @click="run(codeItem, idx)"><i class="fas fa-play fa-xs"></i>&nbsp;Run</button>&nbsp;
+        <button @click="run(codeItem, idx, true)"><i class="fas fa-bug fa-xs"></i>&nbsp;Debug</button>
       </div>
     </div>
   </div>
@@ -31,7 +32,7 @@ export default {
     };
   },
   methods: {
-    run(codeItem, idx) {
+    run(codeItem, idx, debug = false) {
       const origLog = console.log;
       const component = this;
 
@@ -43,7 +44,12 @@ export default {
       };
 
       try {
-        new Function(`(${codeItem.code.toString()})()`)();
+        let code = codeItem.code.toString();
+        if(debug) {
+            const idx = code.indexOf('{');
+            code = code.slice(0, idx+1) + '\n\tdebugger;\n' + code.slice(idx + 1);
+        }
+        new Function(`(${code})()`)();
       } catch (e) {
         console.log(e);
       }
