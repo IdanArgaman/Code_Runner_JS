@@ -3,13 +3,14 @@
 const CodeTypesEnum = {
     ARRAYS: "Arrays",
     ARROWS: "Arrows",
-    THIS: "this",
+    THIS: "This",
     OBJECTS: "Objects",
     FUNDAMENTALS: "Fundamentals",
-    INTERNAL: "INTERNAL",
+    INTERNAL: "Internals",
     HOISTING: "Hoisting",
     IIFE: "IIFE",
-    NEW_FEATURES: "New Features"
+    NEW_FEATURES: "New Features",
+    TRICKS: "Tricks"
 }
 
 export default [{
@@ -502,7 +503,7 @@ export default [{
         }
     },
     {
-        "categoryId": 1,
+        "categoryId": CodeTypesEnum.ARRAYS,
         "title": "",
         "description": "",
         "code": () => {
@@ -515,7 +516,7 @@ export default [{
         }
     },
     {
-        "categoryId": 1,
+        "categoryId": CodeTypesEnum.ARRAYS,
         "title": "",
         "description": "",
         "code": () => {
@@ -540,7 +541,7 @@ export default [{
         }
     },
     {
-        "categoryId": 1,
+        "categoryId": CodeTypesEnum.FUNDAMENTALS,
         "title": "",
         "description": "",
         "code": () => {
@@ -576,7 +577,7 @@ export default [{
         }
     },
     {
-        "categoryId": 1,
+        "categoryId": CodeTypesEnum.FUNDAMENTALS,
         "title": "",
         "description": "",
         "code": () => {
@@ -598,7 +599,7 @@ export default [{
         }
     },
     {
-        "categoryId": 1,
+        "categoryId": CodeTypesEnum.FUNDAMENTALS,
         "title": "",
         "description": "",
         "code": () => {
@@ -616,7 +617,7 @@ export default [{
         }
     },
     {
-        "categoryId": 1,
+        "categoryId": CodeTypesEnum.ARRAYS,
         "title": "",
         "description": "",
         "code": () => {
@@ -666,7 +667,7 @@ export default [{
         }
     },
     {
-        "categoryId": 1,
+        "categoryId": CodeTypesEnum.ARRAYS,
         "title": "",
         "description": "",
         "code": () => {
@@ -680,18 +681,18 @@ export default [{
         }
     },
     {
-        "categoryId": 1,
+        "categoryId": CodeTypesEnum.THIS,
         "title": "",
         "description": "",
         "code": () => {
             window.message = 'xxx';
             var obj1 = {
                 message: "Hello",
-                innerMessage: ! function () {
+                innerMessage: !(function () {
                     console.log('Obj: ' + this.message);
                     // An IIFE, the function invoker is the windows object
                     // this object doesn't contain a "message" prop so this.message is "xxx"
-                }()
+                })()
             };
 
             // We should note that the IIFE function runs on parsing, before we even access the innerMessage
@@ -735,7 +736,7 @@ export default [{
         }
     },
     {
-        "categoryId": 1,
+        "categoryId": CodeTypesEnum.THIS,
         "title": "",
         "description": "",
         "code": () => {
@@ -751,7 +752,7 @@ export default [{
         }
     },
     {
-        "categoryId": 1,
+        "categoryId": CodeTypesEnum.FUNDAMENTALS,
         "title": "",
         "description": "",
         "code": () => {
@@ -773,7 +774,7 @@ export default [{
         }
     },
     {
-        "categoryId": 1,
+        "categoryId": CodeTypesEnum.FUNDAMENTALS,
         "title": "",
         "description": "",
         "code": () => {
@@ -788,7 +789,6 @@ export default [{
             /* A Function object's READ-ONLY name property indicates the function's name as specified when it was created,
                or it may be either anonymous or '' (an empty string) for functions created anonymously. */
 
-
             Person.name = "John"; // ⚠️ Overriding the name doesn't work!
 
             Person.displayName = function () {
@@ -796,12 +796,12 @@ export default [{
             };
 
             var person1 = new Person('John');
-            person1.displayName();
-            Person.displayName();
+            person1.displayName(); // Access instance property -> 'Jhon'
+            Person.displayName(); // Access the function name which is read-only -> 'Person"
         }
     },
     {
-        "categoryId": 1,
+        "categoryId": CodeTypesEnum.FUNDAMENTALS,
         "title": "",
         "description": "",
         "code": () => {
@@ -809,7 +809,7 @@ export default [{
             var x = 3;
 
             function getNumber() {
-                return x = 2 * x, x = 4 + x, 10 - x; // Comman separating expressions in group, the last expression is the result
+                return (x = 2 * x, x = 4 + x, 10 - x); // Comman separating expressions in group, the last expression is the result
             }
 
             var numb = getNumber();
@@ -817,7 +817,7 @@ export default [{
         }
     },
     {
-        "categoryId": 1,
+        "categoryId": CodeTypesEnum.ARROWS,
         "title": "",
         "description": "",
         "code": () => {
@@ -825,10 +825,11 @@ export default [{
                 console.log(this.name);
             }
 
-            Object.prototype.getName2 = function () {
-                console.log(_this.name); // The prototype uses an arrow function which is wrong,
-                // because now 'this' will always point to "window",
-                // which is the this during parse!
+            // The prototype uses an arrow function which is wrong,
+            // because now 'this' will always point to "window",
+            // which is the this during parse!
+            Object.prototype.getName2 = () => {
+                console.log(this.name);
             };
 
             var personObj = {
@@ -843,7 +844,7 @@ export default [{
         }
     },
     {
-        "categoryId": 1,
+        "categoryId": CodeTypesEnum.FUNDAMENTALS,
         "title": "",
         "description": "",
         "code": () => {
@@ -939,7 +940,7 @@ export default [{
             // own local variables and global ones, not the ones from the scope in which the Function constructor was created. 
             // This is different from using eval with code for a function expression.
 
-            var x = 10; // Global scope
+            window.x = 10; // Global scope
 
             function createFunction1() {
                 var x = 20;
@@ -1027,6 +1028,223 @@ export default [{
             };
 
             new Child().getOffsetByInitialPosition();
+        }
+    },
+    {
+        "categoryId": CodeTypesEnum.THIS,
+        "title": "The \"this\" for functions and IIFE",
+        "description": "",
+        "code": () => {
+
+            // Nested functions, on the other hand, follow one simple rule: they always have the 
+            // global object as their default this value, no matter where they appear
+
+            window.fruit = 'banana';
+
+            var object1 = {
+                fruit: 'orange',
+                say: function () {
+                    (function () {
+                        console.log(this.fruit); // this === window
+                    })();
+                }
+            }
+
+            object1.say();
+
+            var object2 = {
+                fruit: 'orange',
+                say: function () {
+                    var x = function () {
+                        console.log(this.fruit); // this === window
+                    };
+                    x();
+                }
+            }
+
+            object2.say();
+
+            var object3 = {
+                fruit: 'orange',
+                say: function () {
+                    (() => {
+                        console.log(this.fruit); // Arrows captures this on definition so this === object3        
+                    })();
+                }
+            }
+
+            object3.say();
+
+            var object4 = {
+                fruit: 'orange',
+                say: function () {
+                    var x = () => { // Arrows captures this on definition so this === object4
+                        console.log(this.fruit);
+                    };
+                    x();
+                }
+            }
+
+            object4.say();
+        }
+    },
+    {
+        "categoryId": CodeTypesEnum.THIS,
+        "title": "This and \"apply\"",
+        "description": "",
+        "code": () => {
+            // When the apply method is called on a function without any arguments or when the 
+            // first argument passed is null, the this value of the function becomes the global object
+
+            window.fruit = 'banana';
+
+            var object = {
+                fruit: 'orange',
+                say: function () {
+                    console.log(this.fruit);
+                }
+            }
+
+            object.say();
+            object.say.apply(); // apply with no params -> this === window!
+        }
+    },
+    {
+        "categoryId": CodeTypesEnum.TRICKS,
+        "title": "This and \"apply\"",
+        "description": "",
+        "code": () => {
+            // Lets create a combine function that combines two functions to one
+
+            var add = function (a, b) {
+                return a + b;
+            }
+
+            var square = function (a) {
+                return a * a;
+            }
+
+            var combine = function (fnA, fnB) {
+                return function () {
+                    var args = Array.prototype.slice.call(arguments);
+                    var result = fnA.apply(null, args);
+                    return fnB.call(null, result);
+                }
+            }
+
+            var addThenSquare = combine(add, square);
+
+            console.log(addThenSquare(2, 3)); // (2 + 3)^2 = 25
+        }
+    },
+    {
+        "categoryId": CodeTypesEnum.FUNDAMENTALS,
+        "title": "Playing with types",
+        "description": "",
+        "code": () => {
+
+            // When comparing a string with a number, JavaScript will convert the string to a number when doing the comparison
+            // (https://www.w3schools.com/js/js_comparisons.asp).
+
+            console.log("2 == '2' - ", 2 == '2'); // '2' gets converted to 2 and then the compariosn takes place
+
+            // All objects are true in a boolean context. 
+            // There are only numeric and string conversions.
+            // The numeric conversion happens when we subtract objects or apply mathematical functions.
+            // As for the string conversion – it usually happens when we output an object like alert(obj) and in similar contexts.
+
+            // For an object-to-string conversion, when we’re doing an operation on an object that expects a string
+            // For an object-to-number conversion, like when we’re doing maths
+
+            // In modern javascript there’s a built-in symbol named "Symbol.toPrimitive" that should be used to name the conversion
+            // method in older javascript we used "valueOf" and "toString" to comvert the object to primitive.
+
+            // So, when converting object to primitive we depending on the provided hint we will try 
+            // to convert to object to number or string ---> THAT DEPENDS ON THE HINT
+            // There are 3 hints: Number, String, and "default" that behaves the same way as "number".
+
+            // During comparison - We try to convert he array to number! But its valueOf implementation doesn't satisfiy 
+            // the situation so the array is converted to string '0' and then the string is converted to number 0.
+            console.log('0 == [0] - ', + 0 == [0]); // true
+
+            console.log(1 == []); // false! [] -> '' and '' != 1
+
+            // But
+            var myArray = [];
+            myArray.valueOf = function () {
+                return 1
+            };
+            console.log(myArray == 1) // true
+
+            // And
+            var mySecondArray = [];
+            mySecondArray.toString = function () {
+                return '1'
+            };
+            console.log(mySecondArray == 1) // true
+
+            // And - A prove that valueOf is being called BEFORE toString
+            var myThirdArray = [];
+            myThirdArray.valueOf = function () {
+                return 2
+            };
+            myThirdArray.toString = function () {
+                return '1'
+            };
+            console.log('myThirdArray: ', + myThirdArray == 1) // false
+
+            // And
+            console.log(1 + {}) // Tries valueOf without success so uses toString, + is forgiving so it will try toString
+            console.log(1 - {}) // Tries valueOf without success so uses toString, - is not forgiving so NaN
+
+            var myCleverObj = {};
+            myCleverObj.valueOf = function() {
+                return 1000;
+            }
+
+            console.log(1 + myCleverObj);
+            console.log(1 - myCleverObj);
+
+            // Empty string is converted to 0
+            console.log([] == 0) // true, [] => '' => 0
+            console.log({} == 0) // false, {} => '[Object Object]' => NaN
+
+            /*
+             To do the conversion, JavaScript tries to find and call three object methods:
+                ◻️ Call obj[Symbol.toPrimitive](hint) – the method with the symbolic key Symbol.toPrimitive (system symbol), if such method exists. 
+                ◻️ Otherwise if hint is "string" - try obj.toString() and obj.valueOf(), whatever exists.               
+                ◻️ Otherwise if hint is "number" or "default" - try obj.valueOf() and obj.toString(), whatever exists.
+            */
+
+            // NaN doesn't equal to itself so we can check for it by
+            var reallyIsNaN = function (x) {
+                return x !== x; // Comparing the parameter to itself!
+            }
+
+            // Look at that:
+            console.log(!!new Boolean(false)) // true - because all object are truthy! 
+            console.log(new Boolean(false) == true) // false - because the boolean object valueOf returns false
+            console.log((new Boolean(false)).valueOf()) // false
+
+            // 👍 Primitive wrapper objects, return their primitive values with the valueOf method, 
+            // and return their string-cast values for toString
+        }
+    },
+    {
+        "categoryId": CodeTypesEnum.THIS,
+        "title": "This and consturctor functions",
+        "description": "",
+        "code": () => {
+            var fruit = 'banana';
+
+            // constructor function
+            var Person = function() {
+                console.log(this.fruit);
+            }
+
+            Person();
+
+            new Person();
         }
     }
 ]
