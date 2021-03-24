@@ -988,6 +988,186 @@ export default [{
     },
     {
         "categoryId": CodeTypesEnum.OBJECTS,
+        "title": "JS Extensive Inheritance Example",
+        "description": "",
+        "code": () => {
+            // Taken from: https://www.digitalocean.com/community/tutorials/understanding-prototypes-and-inheritance-in-javascript
+
+            // Initialize a constructor function for a new Hero
+            function Hero(name, level) {
+                this.name = name;
+                this.level = level;
+            }
+
+            // Initialize Warrior constructor
+            function Warrior(name, level, weapon) {
+                // Chain constructor with call
+                Hero.call(this, name, level);       // Augment this, this is like calling super(this)
+
+                // Add a new property
+                this.weapon = weapon;
+            }
+
+            // Initialize Healer constructor
+            function Healer(name, level, spell) {
+                Hero.call(this, name, level);       // Augment this!
+
+                this.spell = spell;
+            }
+
+            // Add greet method to the Hero prototype
+            Hero.prototype.greet = function () {
+                return `${this.name} says hello.`;
+            }
+
+            // PROTOTYPE LINK PHASE!
+            // Remember that 'Object.create' creates a new object which its __proto__ is Hero.prototype
+            // So, Warrior.prototype.__proto__ -> Hero.prototype
+            Warrior.prototype = Object.create(Hero.prototype);
+            Healer.prototype = Object.create(Hero.prototype);
+
+            // Look at 
+            Warrior.prototype;
+            Warrior.prototype.__proto__;
+
+            // After we assigned the prototype -> we augment it!
+            Warrior.prototype.attack = function () {
+                return `${this.name} attacks with the ${this.weapon}.`;
+            }
+
+            Healer.prototype.heal = function () {
+                return `${this.name} casts ${this.spell}.`;
+            }
+
+            /********************************************************************
+             * The 'new' operator has two tasks:                                *
+             * 1. Augment this                                                  *
+             * 2. Assign the constructor function's prototpe to this.__proto__  *
+             ********************************************************************/
+
+            const hero1 = new Warrior('Bjorn', 1, 'axe');
+            const hero2 = new Healer('Kanin', 1, 'cure');
+
+            /****** instanceof ******/
+
+            // hero1.__proto__ => Warrior.prototype, { attack }.__proto__ => Hero.prototype, { greet }
+
+            console.log(hero1.__proto__ === Warrior.prototype)
+            
+            // The same as checking
+            console.log(hero1 instanceof Warrior)   // Is hero1 have in its chain a __proto__ that eqauls to Warrior.prototype
+
+            console.log(hero1.__proto__.__proto__ === Hero.prototype)
+        
+            // The same as checking
+            console.log(hero1 instanceof Hero)   // Is hero1 have in its chain a __proto__ that eqauls to Hero.prototype
+
+            console.log(hero1.attack());
+            console.log(hero2.greet());
+        }
+    },
+    {
+        "categoryId": CodeTypesEnum.OBJECTS,
+        "title": "Prototype Chain Examples",
+        "description": "",
+        "code": () => {
+
+            // Taken from:
+            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Inheritance_and_the_prototype_chain#objects_created_with_syntax_constructs
+
+            /****** Prototype Examples ******/
+
+            var o = {
+                a: 1
+            };
+
+            // The newly created object o has Object.prototype as its [[Prototype]]
+            // o has no own property named 'hasOwnProperty'
+            // hasOwnProperty is an own property of Object.prototype.
+            // So o inherits hasOwnProperty from Object.prototype
+            // Object.prototype has null as its prototype.
+            // o ---> Object.prototype ---> null
+
+            var b = ['yo', 'whadup', '?'];
+
+            // Arrays inherit from Array.prototype
+            // (which has methods indexOf, forEach, etc.)
+            // The prototype chain looks like:
+            // b ---> Array.prototype ---> Object.prototype ---> null
+
+            function f() {
+                return 2;
+            }
+
+            // Functions inherit from Function.prototype
+            // (which has methods call, bind, etc.)
+            // f ---> Function.prototype ---> Object.prototype ---> null
+
+            var a = {
+                a: 1
+            };
+            // a ---> Object.prototype ---> null
+
+            var b = Object.create(a);
+            // b ---> a ---> Object.prototype ---> null
+            console.log(b.a); // 1 (inherited)
+
+            var c = Object.create(b);
+            // c ---> b ---> a ---> Object.prototype ---> null
+
+            var d = Object.create(null); // Causes the object prototype to be null!
+            // d ---> null
+            console.log(d.hasOwnProperty); // NOTE!
+            // undefined, because d doesn't inherit from Object.prototype
+
+            // Object.setPrototypeOf
+
+            function foo() {}
+
+            foo.prototype = {
+                foo_prop: "foo val"
+            };
+
+            function bar() {}
+
+            var proto = {
+                bar_prop: "bar val"
+            };
+
+            // The first parameter is the object which is to have its prototype set.
+            // The second parameter is the object's new prototype
+
+            Object.setPrototypeOf(
+                proto, foo.prototype
+            );
+
+            bar.prototype = proto;
+
+            var inst = new bar;
+            console.log(inst.foo_prop);     // from foo.prototype
+            console.log(inst.bar_prop);     // from proto
+
+            // Directly setting __proto__
+
+            function A() {}
+            A.prototype = {
+                foo_prop: "foo val"
+            };
+
+            function bar() {}
+            var proto = {
+                bar_prop: "bar val",
+                __proto__: A.prototype
+            };
+            bar.prototype = proto;
+
+            var inst = new bar;
+            console.log(inst.foo_prop);
+            console.log(inst.bar_prop);
+        }
+    },
+    {
+        "categoryId": CodeTypesEnum.OBJECTS,
         "title": "Constructor",
         "description": "",
         "code": () => {
@@ -1165,7 +1345,7 @@ export default [{
 
             // During comparison - We try to convert he array to number! But its valueOf implementation doesn't satisfiy 
             // the situation so the array is converted to string '0' and then the string is converted to number 0.
-            console.log('0 == [0] - ', + 0 == [0]); // true
+            console.log('0 == [0] - ', +0 == [0]); // true
 
             console.log(1 == []); // false! [] -> '' and '' != 1
 
@@ -1191,14 +1371,14 @@ export default [{
             myThirdArray.toString = function () {
                 return '1'
             };
-            console.log('myThirdArray: ', + myThirdArray == 1) // false
+            console.log('myThirdArray: ', +myThirdArray == 1) // false
 
             // And
             console.log(1 + {}) // Tries valueOf without success so uses toString, + is forgiving so it will try toString
             console.log(1 - {}) // Tries valueOf without success so uses toString, - is not forgiving so NaN
 
             var myCleverObj = {};
-            myCleverObj.valueOf = function() {
+            myCleverObj.valueOf = function () {
                 return 1000;
             }
 
@@ -1238,7 +1418,7 @@ export default [{
             var fruit = 'banana';
 
             // constructor function
-            var Person = function() {
+            var Person = function () {
                 console.log(this.fruit);
             }
 
