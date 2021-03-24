@@ -892,6 +892,7 @@ export default [{
 
             // Parent.prototype is Object used as the blueprint for instances of this constructor function!
             // This blueprint is the one refered by the __proto__ property of new objects created by this contsturctor function
+            // 👍 At minimum the blueprint contains a 'constructor' property points to the consturctor function itself!!!
             console.log(Parent.prototype);
 
             // The Object.create() method creates a new object, using an existing object as the prototype of the newly created object.
@@ -906,8 +907,9 @@ export default [{
             }
 
             // We should note that we assign the "CreatedConstructor" prototype property to a new object which is has 
-            // its __proto__ property pointing to Parent prototype. So that new object's constructor property is the 
-            // Parent function 
+            // its __proto__ property pointing to Parent prototype. 
+            //⚠️ By overwriting CreatedConstructor.prototype we overwrote which an object that used to hold an object 
+            // with a constructor property points to CreatedConstructor function.
 
             CreatedConstructor.prototype = t // This is the line causes error at s3 creation! If we comment it, s3 won't cause an error!
 
@@ -920,7 +922,7 @@ export default [{
             // a __proto__ that points to Parent.prototype which equals {test: ƒ, constructor: Parent}
             var s1 = new CreatedConstructor()
 
-            // calling create calls this.constrcutor which is the Parent function which has no 'create' method!!!
+            // calling create calls this.constructor which is the Parent function which has no 'create' method!!!
             var s2 = s1.create();
 
             // Error: Parent doesn't have a 'create' method!
@@ -974,11 +976,10 @@ export default [{
 
             The constructor function Foobar() has its own prototype, which can be found by calling Object.getPrototypeOf(Foobar).
             However this differs from its prototype property, Foobar.prototype, which is the blueprint for instances of this
-            constructor function.
+            constructor function. 👍 This blueprint at minimum contains an object {constructor: ƒ} where f is the Foobar function!
 
             If we were to create a new instance — let fooInstance = new Foobar() — fooInstance would take its prototype
             from its constructor function's prototype property. Thus Object.getPrototypeOf(fooInstance) === Foobar.prototype.
-
             */
 
             function Foobar() {}
@@ -1023,6 +1024,22 @@ export default [{
             // PROTOTYPE LINK PHASE!
             // Remember that 'Object.create' creates a new object which its __proto__ is Hero.prototype
             // So, Warrior.prototype.__proto__ -> Hero.prototype
+
+            /* Warning! Remember! 
+            ⚠️ Each function has a prototype property!
+            ⚠️ The prototype is an object with a constructor property in it!
+            ⚠️ The constructor property points to the function itself!
+             
+            So:
+
+            function Test() {}
+            Test.prototype.constructor === Test
+
+            The folowing lines destroys the prototype's constructor property!
+            Which can raise an error if we try to run: this.constructor() to create a Warrior or Healer.
+            We can restore the constructor by manually set it back!
+            */
+
             Warrior.prototype = Object.create(Hero.prototype);
             Healer.prototype = Object.create(Hero.prototype);
 
@@ -1042,7 +1059,7 @@ export default [{
             /********************************************************************
              * The 'new' operator has two tasks:                                *
              * 1. Augment this                                                  *
-             * 2. Assign the constructor function's prototpe to this.__proto__  *
+             * 2. Assign the constructor function's prototype to this.__proto__  *
              ********************************************************************/
 
             const hero1 = new Warrior('Bjorn', 1, 'axe');
@@ -1192,7 +1209,7 @@ export default [{
             // Child = Object.assign(Child, ParentWithStatic) // copies over the static members from ParentWithStatic to Child
 
             Child.prototype = Object.create(ParentWithStatic.prototype)
-            Child.prototype.constructor = Child
+            Child.prototype.constructor = Child  // Restore to consturctor property destroyed by the above line!
 
             Child.prototype.getOffsetByInitialPosition = function getOffsetByInitialPosition() {
                 let position = this.position
