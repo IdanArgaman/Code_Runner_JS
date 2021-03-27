@@ -5,18 +5,17 @@
 </template>
 
 <script>
-import CodeRunner from './components/CoderRunner.vue'
+import CodeRunner from "./components/CoderRunner.vue";
 
 export default {
-  name: 'CodeRunnerApp',
+  name: "CodeRunnerApp",
   components: {
-    CodeRunner
-  }
-}
+    CodeRunner,
+  },
+};
 </script>
 
 <style>
 #app {
-
 }
 </style>
