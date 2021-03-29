@@ -159,21 +159,24 @@ export default [{
     },
     {
         "categoryId": CodeTypesEnum.OBJECTS,
-        "title": "",
-        "description": "",
+        "title": "Object Creation",
+        "description": "Different ways to create objects in JS",
         "code": () => {
             // Creating object in JS
-            // 1
-            var employee = new Object(); // 2
 
+            // 1
+            var employee = new Object();
+
+            // 2
             var employee = {
                 name: "Nishant",
                 salary: 245678,
                 getName: function getName() {
                     return this.name;
                 }
-            }; // 3
+            };
 
+            // 3
             function Employee(fName, lName, age, salary) {
                 this.firstName = fName;
                 this.lastName = lName;
@@ -183,20 +186,29 @@ export default [{
 
             var employee1 = new Employee("John", "Moto", 24, "5000$"); // 4
 
-            /* This is a modern way to create objects that inherit properties from other objects. 
-              Object.create function doesn’t run the constructor. 
-              We can use Object.create(null) when you don’t want your object to inherit the properties of Object.
+            /*  
+                This is a modern way to create objects that inherit properties from other objects. 
+                Object.create function doesn’t run the constructor. 
+                We can use Object.create(null) when you don’t want your object to inherit the properties of Object.
             */
 
+            // 4
             var employee2 = Object.create(employee);
         }
     },
     {
         "categoryId": CodeTypesEnum.OBJECTS,
-        "title": "",
+        "title": "In opearotr ",
         "description": "",
         "code": () => {
+            // 🔺 Remember: The in operator returns true if the specified property is in the specified object ❗❗❗ or its prototype chain
+
             // "in" operator - check whether a key exist in a JavaScript object or not.
+            // 
+            // Safer than:
+            //      if(obj[key])
+            // The above return false on falsy values
+
             var person = {
                 name: "Nishant",
                 age: 24
@@ -1003,7 +1015,7 @@ export default [{
             // Initialize Warrior constructor
             function Warrior(name, level, weapon) {
                 // Chain constructor with call
-                Hero.call(this, name, level);       // Augment this, this is like calling super(this)
+                Hero.call(this, name, level); // Augment this, this is like calling super(this)
 
                 // Add a new property
                 this.weapon = weapon;
@@ -1011,7 +1023,7 @@ export default [{
 
             // Initialize Healer constructor
             function Healer(name, level, spell) {
-                Hero.call(this, name, level);       // Augment this!
+                Hero.call(this, name, level); // Augment this!
 
                 this.spell = spell;
             }
@@ -1070,14 +1082,14 @@ export default [{
             // hero1.__proto__ => Warrior.prototype, { attack }.__proto__ => Hero.prototype, { greet }
 
             console.log(hero1.__proto__ === Warrior.prototype)
-            
+
             // The same as checking
-            console.log(hero1 instanceof Warrior)   // Is hero1 have in its chain a __proto__ that eqauls to Warrior.prototype
+            console.log(hero1 instanceof Warrior) // Is hero1 have in its chain a __proto__ that eqauls to Warrior.prototype
 
             console.log(hero1.__proto__.__proto__ === Hero.prototype)
-        
+
             // The same as checking
-            console.log(hero1 instanceof Hero)   // Is hero1 have in its chain a __proto__ that eqauls to Hero.prototype
+            console.log(hero1 instanceof Hero) // Is hero1 have in its chain a __proto__ that eqauls to Hero.prototype
 
             console.log(hero1.attack());
             console.log(hero2.greet());
@@ -1161,8 +1173,8 @@ export default [{
             bar.prototype = proto;
 
             var inst = new bar;
-            console.log(inst.foo_prop);     // from foo.prototype
-            console.log(inst.bar_prop);     // from proto
+            console.log(inst.foo_prop); // from foo.prototype
+            console.log(inst.bar_prop); // from proto
 
             // Directly setting __proto__
 
@@ -1209,7 +1221,7 @@ export default [{
             // Child = Object.assign(Child, ParentWithStatic) // copies over the static members from ParentWithStatic to Child
 
             Child.prototype = Object.create(ParentWithStatic.prototype)
-            Child.prototype.constructor = Child  // Restore to consturctor property destroyed by the above line!
+            Child.prototype.constructor = Child // Restore to consturctor property destroyed by the above line!
 
             Child.prototype.getOffsetByInitialPosition = function getOffsetByInitialPosition() {
                 let position = this.position
