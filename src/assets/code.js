@@ -694,13 +694,15 @@ export default [{
     },
     {
         "categoryId": CodeTypesEnum.THIS,
-        "title": "",
+        "title": "Playing with IIFE and this",
         "description": "",
         "code": () => {
             window.message = 'xxx';
+
             var obj1 = {
                 message: "Hello",
-                innerMessage: !(function () {
+                // The IIFE will be executed automatically when parsing obj1 definition!
+                innerMessage: (function () {
                     console.log('Obj: ' + this.message);
                     // An IIFE, the function invoker is the windows object
                     // this object doesn't contain a "message" prop so this.message is "xxx"
@@ -710,41 +712,59 @@ export default [{
             // We should note that the IIFE function runs on parsing, before we even access the innerMessage
             // property. Thus the function runs before the code line below. 
 
-            console.log('Obj: ' + obj1.innerMessage);
             var obj2 = {
                 message: 'Hello',
-                innerMessage: function innerMessage() {
-                    // It is important to remember that the IIFE is executed during parsing,
-                    // So we don't need to execute innerMessage in order to run it.
-                    // In this example the result of the IIFE (resolved during parse time) will be returned later,
-                    // when we actually call "innerMessage", but the result gets determined during PARSE!!! 
-                    return !! function () {
-                        console.log('Obj2 IIFE: ' + this.message); // Same as here, the invoker is window, so this.message is "xxx"
-
-                        return true;
-                    }();
+                innerMessage: function () {
+                    (function () {
+                        console.log('Obj2 IIFE: ' + this.message); // The invoker is window, so this.message is "xxx"
+                    })();
                 }
             };
 
-            // Even though we invoked the innerMessage function thourgh obj2, the invoker of the IIFE defined there 
-            // is the window object.
+            // Even though we invoked the innerMessage function thourgh obj2, the invoker the inline function
+            // is the ALWAYs the window object.
 
-            console.log('Obj2: ' + obj2.innerMessage());
+            obj2.innerMessage()
+
             var obj3 = {
                 message: 'Hello',
-                innerMessage: function innerMessage() {
-                    var fn = function fn() {
-                        console.log('Obj3: ' + this.message1);
+                innerMessage: function () {
+                    // Inline function
+                    var fn = function () {
+                        // So we know the invoker is the window!
+                        console.log('Obj3: ' + this.message);
                     };
 
-                    return !!fn(); // The invoker is the window, again!
+                    fn();
                 }
             };
 
-            // Even though we invoked the innerMessage function thourgh obj3, the invoker of the IIFE defined there 
-            // is the window object.
+            // We invoked the innerMessage function thourgh obj3, but it doesn't matter to the
+            // inline function fn which its this is attached to the window.
 
-            console.log('Obj3: ' + obj3.innerMessage());
+            obj3.innerMessage();
+
+            /******************* 
+             * NOW WITH ARROWS *
+             *******************/
+
+            var obj4 = {
+                message: 'Hello',
+                innerMessage: function () {
+                    // By using arrow we bind this to the to its value WHEN THE FUNCTION GETS DEFINED!
+                    // Becaue we are defining the function DURING the call to innerMessage through obj4
+                    // this will point to obj4
+                    (() => {
+                        console.log('Obj4 Arrow IIFE: ' + this.message);
+                    })();
+                }
+            };
+
+            // Even though we invoked the innerMessage function thourgh obj2, the invoker the inline function
+            // is the ALWAYs the window object.
+
+            obj4.innerMessage()
+
         }
     },
     {
