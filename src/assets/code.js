@@ -1113,6 +1113,33 @@ export default [{
 
             console.log(hero1.attack());
             console.log(hero2.greet());
+
+            /****************
+             * Another one *
+             ***************/
+
+            (function () {
+
+                // prototype is a Skelton for the __proto__ property
+                function Animal() {
+                    this.gender = "M";
+                }
+
+                Animal.prototype.say = function () {
+                    console.log('hello');
+                };
+
+                function Bird() {
+                    this.song = 'B';
+                }
+
+                Bird.prototype = new Animal();
+
+                // b.__proto__ => { gender: ‘M’}.__proto => {say, constructor [Animal] }
+                var b = new Bird();
+
+            })();
+
         }
     },
     {
