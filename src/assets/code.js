@@ -1502,5 +1502,42 @@ export default [{
 
             new Person();
         }
+    },
+    {
+        categoryId: CodeTypesEnum.NEW_FEATURES,
+        title: "Function defintion under use strict",
+        description: "",
+        code: () => {
+            (() => {
+                // We declare the block with use strict 
+                // so function are scoped to the block and no hoisted
+                'use strict'; {
+                    let _value = 'secret'
+
+                    function nested() {
+                        return _value;
+                    }
+                }
+
+                try {
+                    console.log(nested()) // ❌ nested is not defined
+                } catch (e) {
+                    console.log(e)
+                }
+
+            })();
+
+            (() => {
+                {
+                    let _value = 'secret'
+
+                    function nested() {
+                        return _value;
+                    }
+                }
+
+                console.log(nested()); // 👌
+            })();
+        }
     }
 ]
